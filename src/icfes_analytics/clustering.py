@@ -49,13 +49,13 @@ def run_six_clustering_plots(X_scaled: np.ndarray, n_clusters=5, random_state=42
     resumen = {}
     pi = 0
 
-    # 1) MiniBatchKMeans (sobre todo el conjunto; se grafica el subconjunto)
+    # 1) MiniBatchKMeans
     km = cluster.MiniBatchKMeans(n_clusters=n_clusters, random_state=random_state)
     labels_full = km.fit_predict(X_scaled)
     resumen['MiniBatchKMeans'] = Counter(labels_full)
     plot(axes[pi], X_2d_s, labels_full[idx_sample], "MiniBatchKMeans"); pi += 1
 
-    # Conectividad kNN para Ward/Avg (sobre el subconjunto)
+    # Conectividad kNN
     try:
         conn = kneighbors_graph(X_s, n_neighbors=5, include_self=False)
         conn = 0.5 * (conn + conn.T)
@@ -68,7 +68,7 @@ def run_six_clustering_plots(X_scaled: np.ndarray, n_clusters=5, random_state=42
     resumen['Ward'] = Counter(labels)
     plot(axes[pi], X_2d_s, labels, "Ward"); pi += 1
 
-    # 3) Agglomerative Average (cityblock) con reducción opcional
+    # 3) Agglomerative Average
     X_fit = X_s
     XY_plot = X_2d_s
     if X_fit.shape[0] > 1500:

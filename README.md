@@ -7,8 +7,9 @@ Clustering y series de tiempo para datos ICFES (Saber 11 / Saber Pro). Incluye:
 
 ## Datos (datasets grandes y Git)
 - Los CSV del Sprint 1 pueden superar el límite de 100 MB de GitHub; por eso NO se incluyen en el repo.
-- Coloca los archivos CSV (por ejemplo `Dataset1–Saber11(2020-2)_LIMPIO.csv` y `Dataset2–SaberPro(2021–2024)_LIMPIO.csv`) en la carpeta del proyecto (o en `data/`).
-- Este repo ignora `*.csv` y `data/` por defecto (ver `.gitignore`).
+- Coloca los archivos CSV (por ejemplo `Dataset1–Saber11(2020-2)_LIMPIO.csv` y `Dataset2–SaberPro(2021–2024)_LIMPIO.csv`) en la carpeta del proyecto.
+- Link de los datasets: https://drive.google.com/drive/folders/1O49JVxhRDbB1oaLek9JYvX1UWl59MEmo?usp=drive_link
+- Este repo ignora `*.csv` y `data/` por defecto.
 - El notebook detecta automáticamente los archivos limpios por patrón: `Dataset1*LIMPIO.csv` y `Dataset2*LIMPIO.csv` en el directorio actual.
 
 ## Requisitos
@@ -90,8 +91,5 @@ print(metrics)
 
 ## Ejecutar el notebook
 1. Abre VS Code y el notebook `Sprint2_ICFES.ipynb`.
-2. Selecciona el kernel `icfes-analytics` (si lo registraste) o el intérprete del venv `.venv`.
+2. Selecciona el intérprete del venv `.venv`.
 3. Ejecuta las celdas en orden. El notebook ya usa los módulos de `src/`.
-
-### Nota sobre Git LFS (opcional)
-Si necesitas versionar datasets grandes, considera usar [Git LFS](https://git-lfs.github.com/). Para este proyecto académico recomendamos mantener los CSV fuera del repo y documentar su ubicación local.
