@@ -36,16 +36,29 @@ Clustering y series de tiempo para datos ICFES (Saber 11 / Saber Pro). Incluye:
 ## Estructura
 ```
 Proyecto/
-├─ src/
-│  └─ icfes_analytics/
-│     ├─ __init__.py
-│     ├─ clustering.py        # 6 métodos y gráficos
-│     ├─ timeseries.py        # parser, agregación, STL/ADF, ARIMA
-│     ├─ rnn_numpy.py         # RNN mínima (NumPy)
-│     └─ plots.py             # estilo BTC
-├─ Sprint2_ICFES.ipynb        # notebook principal (ejecutado)
-├─ requirements.txt           # dependencias (pip)
-└─ README.md
+├─ src/icfes_analytics/           → Módulos analíticos (creados en Sprint 2)
+│   ├─ clustering.py
+│   ├─ timeseries.py
+│   ├─ rnn_numpy.py
+│   ├─ plots.py
+│   └─ _init_.py
+├─ api/app/                       → Lógica y estructura del sistema web (Sprint 3)
+│   ├─ main.py
+│   ├─ services.py
+│   ├─ schemas.py
+│   └─ models_loader.py
+├─ models/                        → Modelos entrenados y serializados
+│   ├─ scaler.pkl
+│   ├─ kmeans.pkl
+│   └─ feature_cols.pkl
+├─ data/                          → Datasets limpios del Sprint 1
+│   ├─ Dataset1–Saber11(2020-2)_LIMPIO.csv
+│   └─ Dataset2–SaberPro(2021–2024)_LIMPIO.csv
+├─ train_save_models.py           → Entrenamiento y guardado de modelos
+├─ Sprint2_ICFES.ipynb            → Notebook base del Sprint 2
+├─  requirements-api.txt
+└─ requirements.txt
+
 ```
 
 ## Uso de los módulos
@@ -93,3 +106,73 @@ print(metrics)
 1. Abre VS Code y el notebook `Sprint2_ICFES.ipynb`.
 2. Selecciona el intérprete del venv `.venv`.
 3. Ejecuta las celdas en orden. El notebook ya usa los módulos de `src/`.
+
+
+
+# API de Recomendaciones (Sprint 3)
+
+Este módulo implementa una API con FastAPI que utiliza los modelos entrenados para predecir el clúster académico de un estudiante y generar recomendaciones automáticas basadas en sus puntajes Saber 11 / Saber Pro.
+
+
+# Activar entorno y dependencias
+
+Si no tienes el entorno virtual activo, ejecútalo desde la raíz del proyecto:
+
+1. .\.venv\Scripts\Activate.ps1
+2. pip install -r requirements-api.txt
+
+#  Iniciar la API localmente
+
+Desde la raíz del proyecto (donde está train_save_models.py):
+
+- uvicorn api.app.main:app --reload
+
+Esto iniciará el servidor en:
+
+- http://127.0.0.1:8000
+
+
+# Documentación automática con FastAPI
+
+FastAPI genera una interfaz interactiva automáticamente:
+
+- Documentación Swagger UI → http://127.0.0.1:8000/docs
+
+Desde ahí puedes probar cada endpoint directamente, sin usar Postman ni consola.
+
+
+
+
+# Endpoints principales
+
+GET	/health	Verifica el estado de la API
+POST	/predict	Predice el clúster y devuelve recomendaciones automáticas
+POST	/cluster	Predice el clúster y guarda la consulta en el historial
+GET	/history	Muestra el historial de consultas recientes
+GET	/student/{id_student}	Muestra el historial de un estudiante específico
+GET	/summary	Muestra el conteo de estudiantes por clúster
+DELETE	/clear-history	Limpia el historial almacenado en memoria
+
+
+# Entrenamiento de modelos (previo)
+
+Antes de ejecutar la API, asegúrate de haber generado los modelos con:
+
+- python train_save_models.py
+
+Esto crea los archivos serializados en /models:
+
+- scaler.pkl
+- kmeans.pkl
+- feature_cols.pkl
+
+Estos archivos son cargados automáticamente al iniciar la API.
+
+
+# Notas finales
+
+Todos los datasets deben estar ubicados en la carpeta /data/.
+
+La API usa los mismos puntajes procesados en el Sprint 2 para generar sus recomendaciones.
+
+El sistema está completamente modularizado: los modelos, el procesamiento y la interfaz (FastAPI) son reutilizables para futuros sprints o despliegues en la nube.
