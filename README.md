@@ -176,3 +176,44 @@ Todos los datasets deben estar ubicados en la carpeta /data/.
 La API usa los mismos puntajes procesados en el Sprint 2 para generar sus recomendaciones.
 
 El sistema está completamente modularizado: los modelos, el procesamiento y la interfaz (FastAPI) son reutilizables para futuros sprints o despliegues en la nube.
+
+# Sprint 4 – Dashboard de Recomendaciones ICFES
+
+Este sprint agrega un dashboard interactivo construido con **Streamlit** para visualizar estadísticas de clústers y obtener recomendaciones académicas basadas en los puntajes ingresados.
+
+## Endpoints usados
+`/predict`, `/history`, `/student/{id_student}`, `/clear-history`, `/health`.
+Los endpoints `/cluster` y `/summary` permanecen disponibles para uso interno, pero el dashboard no muestra información segmentada por clúster.
+
+## Requisitos adicionales
+Instalar dependencias del dashboard (se mantiene separado de `requirements.txt`):
+
+```powershell
+pip install -r requirements-dashboard.txt
+```
+
+## Ejecución
+1. Iniciar la API FastAPI (desde la raíz del proyecto):
+```powershell
+uvicorn api.app.main:app --reload
+```
+2. Iniciar el dashboard Streamlit:
+```powershell
+streamlit run dashboard/app.py
+```
+
+## Funcionalidades
+- Entrada de puntajes y generación de recomendaciones (fortaleza principal, carreras sugeridas, refuerzos).
+- Estadísticas del historial: promedios globales de puntajes y total de consultas (sin mostrar clústers).
+- Historial detallado (últimas 50 consultas) con expansión de puntajes sin columnas duplicadas.
+- Búsqueda del historial por `id_student`.
+- Limpieza manual del historial.
+- Verificación de salud de la API.
+- Radar comparativo (Estudiante vs Promedio Histórico global) tras una predicción.
+- Filtro por rango de puntaje global en estadísticas.
+
+## Próximos Mejoras (Opcionales)
+- Autenticación básica para separar usuarios.
+- Persistencia del historial en base de datos (SQLite / Postgres).
+- Exportación de reportes PDF.
+- Versión alternativa en Dash o Power BI si se requiere.
