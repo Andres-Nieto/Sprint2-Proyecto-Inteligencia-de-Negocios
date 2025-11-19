@@ -1,9 +1,27 @@
+# Clusterización (SPRINT 2)
+
+# Librerías base de ciencia de datos
 numpy>=1.24
 pandas>=2.1
+scipy>=1.11
+
+# Visualización
 matplotlib>=3.7
 seaborn>=0.13
+plotly
+
+# Machine Learning y modelado
 scikit-learn>=1.3
-scipy>=1.11
 statsmodels>=0.14
+
+# API (SPRINT 3)
+fastapi
+uvicorn
+
+# Dashboard (SPRINT 4)
+streamlit
+requests
+
+# Entorno de desarrollo (notebooks)
 jupyter>=1.0
 ipykernel>=6.29
