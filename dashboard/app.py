@@ -4,10 +4,84 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from typing import Any, Dict
+from pathlib import Path
+import csv
 
-@st.cache_data
+@st.cache_data(show_spinner="Cargando dataset optimizado…")
 def load_data():
-    return pd.read_csv("data/Dataset2-SaberPro(2021-2024)_LIMPIO.csv")
+    """Carga el dataset de Saber Pro con autodetección de delimitador y reducción de uso de memoria.
+
+    Se evita el error de memoria causado por una mala separación que generaba cientos de miles de columnas.
+    Estrategia:
+    1. Detectar delimitador entre ',', ';', '\t', '|'.
+    2. Leer sólo columnas relevantes para la sección de predicción (se amplía según se necesite).
+    3. Forzar tipos simples para reducir uso de memoria.
+    4. Usar engine='python' si hay delimitadores complejos.
+    """
+    path = Path("data/Dataset2-SaberPro(2021-2024)_LIMPIO.csv")
+    if not path.exists():
+        raise FileNotFoundError(f"No se encontró el archivo: {path}")
+
+    # Delimitadores candidatos comunes en archivos regionales (coma / punto y coma / tab / pipe)
+    with open(path, 'r', encoding='utf-8', errors='ignore') as fh:
+        sample = fh.read(8192)
+    try:
+        dialect = csv.Sniffer().sniff(sample, delimiters=[',', ';', '\t', '|'])
+        sep = dialect.delimiter
+    except Exception:
+        # Heurística rápida: si hay muchas ';' en la primera línea, usar ';'
+        first_line = sample.splitlines()[0] if sample else ''
+        sep = ';' if first_line.count(';') > first_line.count(',') else ','
+
+    # Columnas necesarias para la predicción por universidad.
+    needed_cols = [
+        'inst_nombre_institucion',
+        'periodo',
+        'punt_global',
+        'mod_lectura_critica_punt',
+        'mod_ingles_punt',
+        'mod_razona_cuantitat_punt'
+    ]
+
+    # Intentar leer sólo las columnas necesarias primero.
+    try:
+        df = pd.read_csv(
+            path,
+            sep=sep,
+            usecols=lambda c: c in needed_cols,  # función para filtrar dinámicamente
+            encoding='utf-8',
+            low_memory=True,
+            engine='python'
+        )
+    except ValueError:
+        # Si alguna columna no existe, leer sin filtrar y luego seleccionar intersección.
+        df_full = pd.read_csv(
+            path,
+            sep=sep,
+            encoding='utf-8',
+            low_memory=True,
+            engine='python'
+        )
+        existing = [c for c in needed_cols if c in df_full.columns]
+        df = df_full[existing].copy()
+
+    # Normalizar tipos
+    if 'inst_nombre_institucion' in df.columns:
+        df['inst_nombre_institucion'] = df['inst_nombre_institucion'].astype(str)
+    if 'periodo' in df.columns:
+        # Convertir a int limpio; valores no convertibles -> NaN -> eliminar
+        df['periodo'] = pd.to_numeric(df['periodo'], errors='coerce').astype('Int64')
+        df = df.dropna(subset=['periodo'])
+        df['periodo'] = df['periodo'].astype(int)
+
+    score_cols = [
+        c for c in ['punt_global','mod_lectura_critica_punt','mod_ingles_punt','mod_razona_cuantitat_punt']
+        if c in df.columns
+    ]
+    for c in score_cols:
+        df[c] = pd.to_numeric(df[c], errors='coerce')
+
+    return df
 
 API_BASE = "http://127.0.0.1:8000"
 
